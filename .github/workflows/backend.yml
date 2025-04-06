@@ -19,7 +19,6 @@ jobs:
         java-version: '17'
 
     - name: Build Spring Boot App
-      working-directory: backend
       run: ./gradlew build -x test -x spotlessJavaCheck
 
     - name: Set up SSH key
@@ -27,16 +26,11 @@ jobs:
         echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
         chmod 400 key.pem
 
-    - name: Check directory structure
-      run: |
-        pwd
-        ls -al
-
     - name: Send build artifacts to EC2
       run: |
         scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
         scp -i key.pem -o StrictHostKeyChecking=no \
-          backend/docker-compose.yml backend/Dockerfile backend/.env backend/src/main/resources/application.yml \
+          docker-compose.yml Dockerfile .env src/main/resources/application.yml \
           ubuntu@43.202.247.79:/home/ubuntu/backend/
 
     - name: Deploy on EC2
@@ -44,7 +38,7 @@ jobs:
         ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@43.202.247.79 << 'EOF'
         cd /home/ubuntu/backend
 
-        docker-compose down
+        docker-compose down || true
 
         docker-compose up -d --build
         EOF

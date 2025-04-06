@@ -30,7 +30,7 @@ jobs:
       run: |
         scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
         scp -i key.pem -o StrictHostKeyChecking=no \
-          docker-compose.yml Dockerfile .env src/main/resources/application.yml \
+          backend/docker-compose.yml backend/Dockerfile backend/.env backend/src/main/resources/application.yml \
           ubuntu@43.202.247.79:/home/ubuntu/backend/
 
     - name: Deploy on EC2

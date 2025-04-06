@@ -1,6 +1,7 @@
 package org.secretjuju.kono.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
@@ -60,17 +61,24 @@ public class UserController {
 	}
 
 	@PutMapping("/nickname")
-	public ResponseEntity<?> updateNickname(@RequestBody NicknameUpdateRequest request) {
+	public ResponseEntity<?> updateNickname(@AuthenticationPrincipal OAuth2User oauth2User,
+			@RequestBody NicknameUpdateRequest request) {
 		try {
+			// 인증 확인
+			if (oauth2User == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+						.body(Map.of("status", 401, "message", "Authentication required"));
+			}
+
 			// 닉네임 유효성 검사
 			if (!isValidNickname(request.getNickname())) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 						.body(new ErrorResponse("닉네임은 2~10자의 한글, 영문, 숫자만 사용할 수 있어요."));
 			}
 
-			// 인증 확인
-			User currentUser = userService.getCurrentUser();
-			if (currentUser == null) {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+			User user = userService.getUserByKakaoId(kakaoId);
+			if (user == null) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("로그인이 필요합니다."));
 			}
 
@@ -80,10 +88,11 @@ public class UserController {
 			}
 
 			// 닉네임 업데이트
-			userService.updateNickname(currentUser, request.getNickname());
+			userService.updateNickname(user, request.getNickname());
 			return ResponseEntity.ok().build();
 
 		} catch (Exception e) {
+			log.error("닉네임 변경 중 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("닉네임 변경에 실패했습니다."));
 		}
 	}

@@ -19,6 +19,7 @@ jobs:
         java-version: '17'
 
     - name: Build Spring Boot App
+      working-directory: backend
       run: ./gradlew build -x test -x spotlessJavaCheck
 
     - name: Set up SSH key
@@ -26,19 +27,25 @@ jobs:
         echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
         chmod 400 key.pem
 
-    - name: Send build artifacts to EC2
+    - name: Copy all deployment files to EC2
       run: |
-        scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
+        # 복사할 모든 파일은 backend 경로 기준
         scp -i key.pem -o StrictHostKeyChecking=no \
-          docker-compose.yml Dockerfile .env src/main/resources/application.yml \
+          backend/build/libs/*.jar \
+          backend/docker-compose.yml \
+          backend/Dockerfile \
+          backend/.env \
+          backend/src/main/resources/application.yml \
           ubuntu@43.202.247.79:/home/ubuntu/backend/
 
-    - name: Deploy on EC2
+    - name: Deploy via SSH
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@43.202.247.79 << 'EOF'
-        cd /home/ubuntu/backend
+          cd /home/ubuntu/backend
 
-        docker-compose down || true
+          echo "[1] 기존 컨테이너 중지 및 삭제"
+          docker-compose down || true
 
-        docker-compose up -d --build
+          echo "[2] 최신 이미지 기반 재빌드 및 실행"
+          docker-compose up -d --build
         EOF

@@ -19,8 +19,7 @@ jobs:
         java-version: '17'
 
     - name: Build Spring Boot App
-      working-directory: backend
-      run: ./gradlew build -x test -x spotlessJavaCheck
+      run: ./backend/gradlew -p backend build -x test -x spotlessJavaCheck
 
     - name: Set up SSH key
       run: |

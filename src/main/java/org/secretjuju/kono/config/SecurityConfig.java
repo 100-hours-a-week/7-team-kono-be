@@ -50,7 +50,9 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
+			http
+				.cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 이 줄 추가!
+				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**")
 						.permitAll().requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
@@ -88,7 +90,11 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration
-				.setAllowedOrigins(Arrays.asList(frontendRedirectUri, "https://www.playkono.com", cloudFrontRedirectUri)); // 프론트엔드
+				.setAllowedOrigins(Arrays.asList(frontendRedirectUri,
+						"https://www.playkono.com",
+						"http://www.playkono.com",
+						cloudFrontRedirectUri
+				)); // 프론트엔드
 																														// 주소
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));

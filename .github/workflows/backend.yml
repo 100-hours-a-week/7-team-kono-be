@@ -2,7 +2,7 @@ name: Backend CI/CD (Docker build on EC2)
 
 on:
   push:
-    branches: ["fix/path"]
+    branches: ["fix/path"]  # 운영 브랜치
 
 jobs:
   build-and-deploy:
@@ -19,32 +19,25 @@ jobs:
         java-version: '17'
 
     - name: Build Spring Boot App
-      run: ./backend/gradlew -p backend build -x test -x spotlessJavaCheck
+      run: ./gradlew build -x test -x spotlessJavaCheck
 
     - name: Set up SSH key
       run: |
         echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
         chmod 400 key.pem
 
-    - name: Copy all deployment files to EC2
+    - name: Copy build artifact to EC2
       run: |
-        # 복사할 모든 파일은 backend 경로 기준
-        scp -i key.pem -o StrictHostKeyChecking=no \
-          backend/build/libs/*.jar \
-          backend/docker-compose.yml \
-          backend/Dockerfile \
-          backend/.env \
-          backend/src/main/resources/application.yml \
-          ubuntu@43.202.247.79:/home/ubuntu/backend/
+        scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
 
-    - name: Deploy via SSH
+    - name: Deploy on EC2
       run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@43.202.247.79 << 'EOF'
-          cd /home/ubuntu/backend
+        cd /home/ubuntu/backend
 
-          echo "[1] 기존 컨테이너 중지 및 삭제"
-          docker-compose down || true
+        echo "[1] Stopping existing container"
+        docker-compose down || true
 
-          echo "[2] 최신 이미지 기반 재빌드 및 실행"
-          docker-compose up -d --build
+        echo "[2] Rebuilding container with updated jar"
+        docker-compose up -d --build
         EOF

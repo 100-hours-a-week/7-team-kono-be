@@ -36,6 +36,7 @@ spring:
     cors:
       allowed-origins:
         - ${FRONTEND_REDIRECT_URI}
+        - https://www.playkono.com
         - http://localhost:5173  # 개발 환경용
       allowed-methods:
         - GET
@@ -66,6 +67,7 @@ cloud:
       base-url: ${CLOUDFRONT_URL}
       allowed-origins:
         - ${FRONTEND_REDIRECT_URI}
+        - https://www.playkono.com
         - http://localhost:5173
 
 thymeleaf:

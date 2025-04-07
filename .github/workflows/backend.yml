@@ -2,7 +2,7 @@ name: Backend CI/CD (Docker build on EC2)
 
 on:
   push:
-    branches: ["develop"]  # 운영 브랜치
+    branches: ["fix/path"]  # 운영 브랜치
 
 jobs:
   build-and-deploy:
@@ -28,11 +28,11 @@ jobs:
       - name: Copy JAR to EC2 (with rename)
         run: |
           JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | grep -v plain)
-          scp -i key.pem -o StrictHostKeyChecking=no "$JAR_FILE" ubuntu@3.36.226.164:/home/ubuntu/backend/app.jar
+          scp -i key.pem -o StrictHostKeyChecking=no "$JAR_FILE" ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
 
       - name: Deploy on EC2
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@3.36.226.164 << 'EOF'
+          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@43.202.247.79 << 'EOF'
           cd /home/ubuntu/backend
           
           echo "[1] Stopping existing container"
@@ -41,4 +41,3 @@ jobs:
           echo "[2] Rebuilding container with updated jar"
           docker-compose up -d --build
           EOF
-

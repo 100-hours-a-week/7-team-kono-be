@@ -51,13 +51,9 @@ public class S3Service {
 			PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 			String presignedUrl = presignedRequest.url().toString();
 
-			// 업로드 완료 후 접근 가능한 URL 생성
-			String uploadedFileUrl;
-			if (baseUrl.endsWith("/")) {
-				uploadedFileUrl = baseUrl + uniqueFileName;
-			} else {
-				uploadedFileUrl = baseUrl + "/" + uniqueFileName;
-			}
+			String uploadedFileUrl = baseUrl.endsWith("/")
+					? baseUrl + uniqueFileName
+					: baseUrl + "/" + uniqueFileName;
 
 			log.info("Generated presigned URL for file: {}", fileName);
 			return new PresignedUrlResponseDto(presignedUrl, uniqueFileName, uploadedFileUrl);

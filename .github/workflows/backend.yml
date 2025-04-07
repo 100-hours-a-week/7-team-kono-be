@@ -2,7 +2,7 @@ name: Backend CI/CD (Docker build on EC2)
 
 on:
   push:
-    branches: ["fix/path"]  # 운영 브랜치
+    branches: ["fix/prod"]  # 운영 브랜치
 
 jobs:
   build-and-deploy:

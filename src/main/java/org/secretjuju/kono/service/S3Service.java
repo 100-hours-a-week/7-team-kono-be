@@ -41,7 +41,6 @@ public class S3Service {
 					.bucket(bucketName)
 					.key(uniqueFileName)
 					.contentType(contentType)
-					.acl("public-read") // ✅ 이 줄 추가
 					.build();
 
 			// Presigned URL 요청 생성 (5분 유효)

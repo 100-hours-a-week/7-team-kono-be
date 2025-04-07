@@ -134,3 +134,9 @@ sentry:
   # Add data like request headers and IP for users,
   # see https://docs.sentry.io/platforms/java/guides/spring-boot/data-management/data-collected/ for more info
   send-default-pii: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

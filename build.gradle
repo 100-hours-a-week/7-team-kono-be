@@ -14,8 +14,8 @@ sentry {
 	includeSourceContext = true
 
 	org = "secret-juju"
-	projectName = "kono-be"
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	projectName = "cono-be"
+	authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
 }
 group = 'org.secretjuju'
 version = '0.0.1-SNAPSHOT'
@@ -81,7 +81,6 @@ dependencies {
 	implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
 	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
-
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -90,7 +89,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus' // 마이크로미터 프로메테우스 구현체
+	implementation 'org.springframework.boot:spring-boot-starter-actuator' // 엑츄에이터
 }
 
 tasks.named('test') {

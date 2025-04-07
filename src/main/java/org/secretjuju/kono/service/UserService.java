@@ -23,11 +23,20 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class UserService {
+
+	public void testSentryCapture() {
+		try {
+			throw new Exception("This is a test.");
+		} catch (Exception e) {
+			Sentry.captureException(e);
+		}
+	}
 	private final WebClient webClient;
 	private final UserRepository userRepository;
 
@@ -101,16 +110,20 @@ public class UserService {
 	@Transactional
 	public void withdrawUser(Long kakaoId) {
 		try {
+			// 1. 카카오 연결 해제
 			String adminKeyHeader = "KakaoAK " + adminKey;
-
 			webClient.post().uri("/v1/user/unlink").header("Authorization", adminKeyHeader)
 					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 					.body(BodyInserters.fromFormData("target_id_type", "user_id").with("target_id", kakaoId.toString()))
 					.retrieve().bodyToMono(String.class).block();
-
 			log.info("카카오 연결끊기 성공: kakaoId={}", kakaoId);
-			userRepository.deleteByKakaoId(kakaoId);
 
+			// 2. 사용자 조회
+			User user = userRepository.findByKakaoId(kakaoId)
+					.orElseThrow(() -> new UserNotFoundException("User not found with kakaoId: " + kakaoId));
+
+			// 3. 사용자 삭제 (cascade 설정으로 관련 엔티티도 함께 삭제)
+			userRepository.delete(user);
 			log.info("DB 사용자 정보 삭제 성공: kakaoId={}", kakaoId);
 
 		} catch (WebClientResponseException e) {

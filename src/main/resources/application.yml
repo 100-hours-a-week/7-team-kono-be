@@ -127,3 +127,16 @@ project:
 
 frontend:
   redirect-uri: ${FRONTEND_REDIRECT_URI}
+
+
+sentry:
+  dsn: https://deebff1a648d832aec713b41b6754067@o4509109516435456.ingest.de.sentry.io/4509110026174544
+  # Add data like request headers and IP for users,
+  # see https://docs.sentry.io/platforms/java/guides/spring-boot/data-management/data-collected/ for more info
+  send-default-pii: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

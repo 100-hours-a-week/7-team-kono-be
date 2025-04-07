@@ -34,7 +34,7 @@ public class S3Service {
 	}
 
 	public PresignedUrlResponseDto generatePresignedUrl(String fileName, String contentType) {
-		String uniqueFileName = "images/" + UUID.randomUUID().toString() + "_" + fileName;
+		String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
 
 		try {
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(uniqueFileName)
@@ -49,7 +49,12 @@ public class S3Service {
 			String presignedUrl = presignedRequest.url().toString();
 
 			// 업로드 완료 후 접근 가능한 URL 생성
-			String uploadedFileUrl = baseUrl + uniqueFileName;
+			String uploadedFileUrl;
+			if (baseUrl.endsWith("/")) {
+				uploadedFileUrl = baseUrl + uniqueFileName;
+			} else {
+				uploadedFileUrl = baseUrl + "/" + uniqueFileName;
+			}
 
 			log.info("Generated presigned URL for file: {}", fileName);
 			return new PresignedUrlResponseDto(presignedUrl, uniqueFileName, uploadedFileUrl);

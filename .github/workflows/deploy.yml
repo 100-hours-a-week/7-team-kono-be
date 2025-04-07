@@ -43,7 +43,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'  # main 브랜치에 배포
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v3

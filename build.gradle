@@ -14,7 +14,7 @@ sentry {
 	includeSourceContext = true
 
 	org = "secret-juju"
-	projectName = "cono-be"
+	projectName = "kono-be"
 	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 group = 'org.secretjuju'

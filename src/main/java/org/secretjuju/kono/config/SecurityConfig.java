@@ -86,6 +86,7 @@ public class SecurityConfig {
 		 */
 
 		return resolver;
+
 	}
 
 	@Bean

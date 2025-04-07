@@ -51,11 +51,12 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
-				// 모든 OPTIONS 요청을 인증 없이 허용
-				.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-				.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**").permitAll()
-				.requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
+		http
+				.cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 이 줄 추가!
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**")
+						.permitAll().requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
 						.defaultAuthenticationEntryPointFor(new CustomAuthenticationEntryPoint(objectMapper),
 								new AntPathRequestMatcher("/api/**"))
@@ -89,8 +90,13 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList(frontendRedirectUri, "http://localhost:5173",
-				"https://www.playcono.com", "https://playcono.com", cloudFrontRedirectUri));
+		configuration
+				.setAllowedOrigins(Arrays.asList(frontendRedirectUri,
+						"https://www.playkono.com",
+						"http://www.playkono.com",
+						cloudFrontRedirectUri
+				)); // 프론트엔드
+
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept",
 				"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));

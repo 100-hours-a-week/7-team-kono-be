@@ -48,10 +48,11 @@ spring:
       allow-credentials: true
       max-age: 3600
 
-  spring:
+  # Redis 설정
+  data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
       timeout: 5000
 
 cloud:

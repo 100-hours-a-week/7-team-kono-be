@@ -82,6 +82,9 @@ public class CoinService {
 		// 현재가 설정
 		coinSellBuyRequestDto.setOrderPrice(currentPrice);
 
+		if (coinSellBuyRequestDto.getOrderAmount() != null && coinSellBuyRequestDto.getOrderQuantity() != null) {
+			throw new CustomException(400, "둘중한개만 쓰세요");
+		}
 		// orderAmount가 null일 때 수량으로 계산
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);

@@ -87,6 +87,10 @@ logging:
     org.hibernate: ERROR
     org.hibernate.SQL: ERROR
     org.hibernate.type.descriptor.sql: ERROR
+  file:
+    name: /var/log/app/backend.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
 
 server:
   port: 8080  # Nginx에서 리버스 프록시로 사용할 포트

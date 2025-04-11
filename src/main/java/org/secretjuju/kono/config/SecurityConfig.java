@@ -80,10 +80,13 @@ public class SecurityConfig {
 				clientRegistrationRepository, "/oauth2/authorization");
 
 		// OAuth 요청 시 `prompt=login`을 추가하여 항상 로그인 창이 뜨도록 설정
-		resolver.setAuthorizationRequestCustomizer(
-				customizer -> customizer.additionalParameters(params -> params.put("prompt", "login")));
+		/*
+		 * resolver.setAuthorizationRequestCustomizer( customizer ->
+		 * customizer.additionalParameters(params -> params.put("prompt", "login")));
+		 */
 
 		return resolver;
+
 	}
 
 	@Bean

@@ -21,7 +21,7 @@ public class RankingScheduler {
 		this.coinPriceService = coinPriceService;
 	}
 
-	// 애플리케이션 시작 시 실행되는 초기화 메소드
+	// 애플리케이션 시작 시 실행되는 초기화 메소드.
 	@PostConstruct
 	public void initialize() {
 		log.info("애플리케이션 시작 - 초기 랭킹 시스템 업데이트 실행");

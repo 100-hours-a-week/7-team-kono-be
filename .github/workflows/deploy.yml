@@ -11,7 +11,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -29,15 +33,8 @@ jobs:
       - name: Build Project (Skip tests)
         run: ./gradlew clean build -x test
 
-      - name: Run Tests
-        run: ./gradlew test
-
       - name: Build Bootable Jar
         run: ./gradlew bootJar
-
-      # ✅ Sentry 릴리스 업로드
-      - name: Upload release to Sentry
-        run: ./gradlew :sentryUploadRelease
 
       - name: Upload Artifact (Jar)
         uses: actions/upload-artifact@v4

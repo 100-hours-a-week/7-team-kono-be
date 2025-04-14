@@ -36,10 +36,6 @@ jobs:
       - name: Build Bootable Jar
         run: ./gradlew bootJar
 
-      # ✅ Sentry 릴리스 업로드
-      - name: Upload release to Sentry
-        run: ./gradlew :sentryUploadRelease
-
       - name: Upload Artifact (Jar)
         uses: actions/upload-artifact@v4
         with:

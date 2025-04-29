@@ -1,0 +1,49 @@
+name: Backend CI/CD (Docker build + Push to ECR)
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Spring Boot app
+        run: ./gradlew build -x test -x spotlessJavaCheck -x sentryBundleSourcesJava
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.KONO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.KONO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.KONO_ECR_REGISTRY }}
+
+      - name: Debug - Show directory structure
+        run: ls -R
+
+      - name: Rename built jar to app.jar (exclude plain jar)
+        run: |
+          JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | grep -v plain)
+          echo "Selected jar: $JAR_FILE"
+          cp "$JAR_FILE" app.jar
+
+      - name: Build, tag, and push Docker image to ECR
+        run: |
+          IMAGE_URI=${{ secrets.KONO_ECR_REGISTRY }}/kono-backend:latest
+          docker build -t $IMAGE_URI .
+          docker push $IMAGE_URI

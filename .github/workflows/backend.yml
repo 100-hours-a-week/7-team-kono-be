@@ -2,7 +2,7 @@ name: Backend CI/CD (Docker build on EC2)
 
 on:
   push:
-    branches: ["fix/prod"]  # 운영 브랜치
+    branches: ["develop"]  # 개발 환경
 
 jobs:
   build-and-deploy:
@@ -23,16 +23,16 @@ jobs:
 
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
+          echo "${{ secrets.KONO_EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
           chmod 400 key.pem
       - name: Copy JAR to EC2 (with rename)
         run: |
           JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | grep -v plain)
-          scp -i key.pem -o StrictHostKeyChecking=no "$JAR_FILE" ubuntu@43.202.247.79:/home/ubuntu/backend/app.jar
+          scp -i key.pem -o StrictHostKeyChecking=no "$JAR_FILE" ubuntu@${{ secrets.KONO_IP}}:/home/ubuntu/backend/app.jar
 
       - name: Deploy on EC2
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@43.202.247.79 << 'EOF'
+          ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.KONO_IP}} << 'EOF'
           cd /home/ubuntu/backend
           
           echo "[1] Stopping existing container"
